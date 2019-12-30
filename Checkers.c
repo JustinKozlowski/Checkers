@@ -103,6 +103,13 @@ void printGame(struct gameState game){
             emptyCell = !emptyCell;
         }
     }
-
-
+    for(int x = 0; x < 8; x++){ // Prints parsed gameBoard
+        printf("-----------------\n");
+        for(y = 0; y < 8; y++){
+            printf("|");
+            printf("%c", out->gameBoard[x][y]);
+        }
+        printf("|\n");
+    }
+    printf("-----------------\n");
 }
