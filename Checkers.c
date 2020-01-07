@@ -95,8 +95,9 @@ void printGame(struct gameState *game){
     free(blackKings);
 }
 
-int main(int argc, char* argv){
+int main(int argc, char* argv){ // test initialization
 	struct gameState *game = gameInit();
 	printf("%s\n", game->prevStates[0].red.board);
 	printGame(game);
 }
+
