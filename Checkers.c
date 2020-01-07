@@ -3,37 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-struct grid { //store states as binary in a single char
-    char board[8];
-};
-
-struct boardState { //one grid for each type of piece in game
-    struct grid red;
-    struct grid redKings;
-    struct grid black;
-    struct grid blackKings;
-};
-
-struct gameState{ //store previous 6 board states, along with metat data
-    struct boardState prevStates[7];
-    struct grid colorTurn;
-    struct grid repetition;
-    struct grid progress;
-    struct grid turnNum;
-};
-
-struct printState{
-    struct grid gameBoard[8];
-};
-
-struct gameState *gameInit();
-void printGame(struct gameState *game);
-struct printState *boardBinary(struct grid x);
+#include "checkers.h"
 
 struct gameState *gameInit(){ //initializes board statean meta data
     struct gameState *game = calloc(1, sizeof(struct gameState));
-    strcpy(game->colorTurn.board, "red");
+    strcpy(game->colorTurn.board, COLOR1);
     strcpy(game->repetition.board, "0");
     strcpy(game->progress.board, "0");
     strcpy(game->turnNum.board, "0");
@@ -66,50 +40,41 @@ struct printState *boardBinary(struct grid x) { // Convers char to binary grid
     struct printState *out = calloc(1, sizeof(struct printState));
     for(int y = 0; y < 8; y++){
         char b[8] = "\0";
-	printf("%s", b);
-	printf("%x", x.board[y] & 0xff);
-        for (int z = 128; z > 0; z >>= 1){
+        for (int z = 128; z > 0; z >>= 1){ //Comares each bit in the char and appends bit to b
             strcat(b, ((x.board[y] & z) == z) ? "1" : "0");
         }
-	//printf("%s\n", b);
-        strcpy(out->gameBoard[y].board, b);
-	//printf("%s\n", out->gameBoard[y].board);
+        strcpy(out->gameBoard[y].board, b); //Writes b to a row in out
     }
-    printf("\n");
     return out;
 }
 
 void printGame(struct gameState *game){
     struct printState *out = calloc(1, sizeof(struct printState));
-    printf("red:");
+    //Parse individual layer from binary grid to char grid
     struct printState *red = boardBinary(game->prevStates[0].red);
-    printf("redKings:");
     struct printState *redKings = boardBinary(game->prevStates[0].redKings);
-    printf("black:");
     struct printState *black = boardBinary(game->prevStates[0].black);
-    printf("blackKings:");
     struct printState *blackKings = boardBinary(game->prevStates[0].blackKings);
-    int emptyCell = 1;
+    int emptyCell = 1; // Empty cell to create checker pattern
     for(int x = 0; x < 8; x++){ // Parse grids to singular grid
-        for(int y = 0; y < 8; y++){
-	    //printf("red char: %c\n", red->gameBoard[x].board[y]);
+        for(int y = 0; y < 8; y++){ //parses layers and puts to out grid, assumes no overlapping pieces
             if(emptyCell){
-                out->gameBoard[x].board[y] = ' ';
+                out->gameBoard[x].board[y] = CHECKER;
             }
             else if(red->gameBoard[x].board[y] == '1'){
-                out->gameBoard[x].board[y] = 'r';
+                out->gameBoard[x].board[y] = RED;
             }
             else if(redKings->gameBoard[x].board[y] == '1'){
-                out->gameBoard[x].board[y] = 'R';
+                out->gameBoard[x].board[y] = REDKING;
             }
             else if(black->gameBoard[x].board[y] == '1'){
-                out->gameBoard[x].board[y] = 'b';
+                out->gameBoard[x].board[y] = BLACK;
             }
             else if(blackKings->gameBoard[x].board[y] == '1'){
-                out->gameBoard[x].board[y] = 'B';
+                out->gameBoard[x].board[y] = BLACKKING;
             }
             else{
-                out->gameBoard[x].board[y] = ' ';
+                out->gameBoard[x].board[y] = EMPTY;
             }
             emptyCell = !emptyCell;
         }
@@ -124,6 +89,10 @@ void printGame(struct gameState *game){
         printf("|\n");
     }
     printf("-----------------\n");
+    free(red);
+    free(redKings);
+    free(black);
+    free(blackKings);
 }
 
 int main(int argc, char* argv){
