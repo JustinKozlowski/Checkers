@@ -29,6 +29,11 @@ struct gameState{ //store previous 6 board states, along with meta data
 	struct grid turnNum;
 };
 
+struct piece{ // Keeps track of a location on the game board
+	char x;
+	char y;
+};
+
 //Struct used for printing gameboard//
 struct printState{
 	struct grid gameBoard[8];
@@ -38,5 +43,6 @@ struct printState{
 struct gameState *gameInit();   
 void printGame(struct gameState *game); //Prints the state of the current game onto terminal
 struct printState *boardBinary(struct grid x); //Convers binary grid in x to a char grid for printing
+int checkMove(struct gameState *game, struct piece *piece, struct piece *move);
 
 
