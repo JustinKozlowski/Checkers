@@ -93,11 +93,71 @@ void printGame(struct gameState *game){
     free(redKings);
     free(black);
     free(blackKings);
+    free(out);
+}
+
+int checkPiece(struct piece *piece){
+	if(piece->x > "8" || piece->x < "1" || piece->y > "8" || piece->y < "1"){
+		return 0;
+	}
+	// Cheecks if both even or both odd, if note, invalid piece
+	if(piece->x % 0x2){
+		if(!(piece->y % 0x2)){
+			return 0;
+		}
+	}
+	else{
+		if(piece->y % 0x2){
+			return 0;
+		}
+	}
+}
+
+char pieceXChar(struct piece *piece){
+	int x = piece->x - '8';
+	char out = 0x1;
+	for(x < 0; ++x){
+		out <<= 1;
+	}
+	return out;
+}
+
+int checkColor(struct gameState *game, struct piece *piece){ // Check if piece is in colors grids (pawn and king)
+	char x = pieceXChar(piece);
+	if(game->colorTurn.board == Color1){
+		if(game->boardState[0].red[piece->y - '1'] & x){
+			return 1;
+		}
+		if(game->boardState[0].redKings[piece->y - '1'] & x){
+			return 1;
+		}
+	}
+	else{
+		
+		if(game->boardState[0].black[piece->y - '1'] & x){
+			return 1;
+		}
+		if(game->boardState[0].blackKings[piece->y - '1'] & x){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int checkMove(struct gameState *game, struct piece *piece, struct piece *move){
+	if(!checkPiece(piece) || !checkPiece(move)){
+		return 0;
+	}
+	if(game->colorTurn.board == Color1){
+		char test[2] = "test" 	
+	}
 }
 
 int main(int argc, char* argv){ // test initialization
 	struct gameState *game = gameInit();
 	printf("%s\n", game->prevStates[0].red.board);
+	struct piece *test = calloc(1, sizeof(struct piece));
 	printGame(game);
+	free(piece);
 }
 

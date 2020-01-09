@@ -30,8 +30,8 @@ struct gameState{ //store previous 6 board states, along with meta data
 };
 
 struct piece{ // Keeps track of a location on the game board
-	char x;
-	char y;
+	char x; // column for the board. 0 is left of board
+	char y; // row on the board. 0 is top of board
 };
 
 //Struct used for printing gameboard//
