@@ -39,7 +39,7 @@ struct gameState *gameInit(){ //initializes board statean meta data
 struct printState *boardBinary(struct grid x) { // Convers char to binary grid
     struct printState *out = calloc(1, sizeof(struct printState));
     for(int y = 0; y < 8; y++){
-        char b[8] = "\0";
+        char b[9] = "\0";
         for (int z = 128; z > 0; z >>= 1){ //Comares each bit in the char and appends bit to b
             strcat(b, ((x.board[y] & z) == z) ? "1" : "0");
         }
@@ -93,9 +93,74 @@ void printGame(struct gameState *game){
     free(redKings);
     free(black);
     free(blackKings);
+    free(out);
 }
 
-int main(int argc, char* argv){ // test initialization
+int checkPiece(struct piece *piece){
+	if(piece->x > '8' || piece->x < '1' || piece->y > '8' || piece->y < '1'){
+		return 0;
+	}
+	// Cheecks if both even or both odd, if note, invalid piece
+	if(piece->x % 0x2){
+		if(!(piece->y % 0x2)){
+			return 0;
+		}
+	}
+	else{
+		if(piece->y % 0x2){
+			return 0;
+		}
+	}
+	return 1;
+}
+
+char pieceXChar(struct piece *piece){
+	char out = 0x1;
+	for(int x = piece->x - '8'; x < 0; ++x){
+		out <<= 1;
+	}
+	return out;
+}
+
+int checkColor(struct gameState *game, struct piece *piece){ // Check if piece is in colors grids (pawn and king)
+	char x = pieceXChar(piece);
+	if(checkTurn(game, COLOR1)){
+		if(game->prevStates[0].red.board[piece->y - '1'] & x){
+			return 1;
+		}
+		if(game->prevStates[0].redKings.board[piece->y - '1'] & x){
+			return 1;
+		}
+	}
+	else{
+		
+		if(game->prevStates[0].black.board[piece->y - '1'] & x){
+			return 1;
+		}
+		if(game->prevStates[0].blackKings.board[piece->y - '1'] & x){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int checkTurn(struct gameState *game, char *color){
+	for(int i = 0; color[i] != '\0'; ++i){
+		if(color[i] != game->colorTurn.board[i]){
+			return 0;
+		}
+	}
+	return 1;
+}
+
+int checkMove(struct gameState *game, struct piece *piece, struct piece *move){
+	if(!checkPiece(piece) || !checkPiece(move) || !checkColor(game, piece)){
+		return 0;
+	}
+	return 1;
+}
+
+int main(int argc, char** argv){ // test initialization
 	struct gameState *game = gameInit();
 	printf("%s\n", game->prevStates[0].red.board);
 	printGame(game);
