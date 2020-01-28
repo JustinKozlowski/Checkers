@@ -41,11 +41,24 @@ struct printState{
 
 //---Initialization functions---//
 struct gameState *gameInit();   
-void printGame(struct gameState *game); //Prints the state of the current game onto terminal
-struct printState *boardBinary(struct grid x); //Convers binary grid in x to a char grid for printing
-int checkMove(struct gameState *game, struct piece *piece, struct piece *move); // Checks if move is a valid move
-int checkPiece(struct piece *piece); // check if is possible to be a piece
-char pieceXChar(struct piece *piece); // converts int of x to a binary repressentation of the x (00010000)
-int checkColor(struct gameState *game, struct piece *piece); // checks if piece selected exists in colors turn
-int checkTurn(struct gameState *game, char *color); // checks of turn matches color turn
+//Prints the state of the current game onto terminal
+void printGame(struct gameState *game); 
+
+//Convers binary grid in x to a char grid for printing
+struct printState *boardBinary(struct grid x); 
+
+// Checks if move is a valid move
+int checkMove(struct gameState *game, struct piece *piece, struct piece *move); 
+
+// check if is possible to be a piece
+int checkPiece(struct piece *piece); 
+
+// converts int of x to a binary repressentation of the x (00010000)
+char pieceXChar(struct piece *piece); 
+
+// checks if piece selected exists in colors turn
+int checkColor(struct gameState *game, struct piece *piece); 
+
+// checks of turn matches color turd
+int checkTurn(struct gameState *game, char *color); 
 

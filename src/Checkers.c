@@ -157,6 +157,12 @@ int checkMove(struct gameState *game, struct piece *piece, struct piece *move){
 	if(!checkPiece(piece) || !checkPiece(move) || !checkColor(game, piece)){
 		return 0;
 	}
+	// Check piece possible moves
+	// 	if spaces in front is empty
+	// 		behind if king
+	// 	check for jumps
+	// 		king jumps too
+	
 	return 1;
 }
 
