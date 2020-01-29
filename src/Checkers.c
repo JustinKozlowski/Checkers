@@ -153,6 +153,23 @@ int checkTurn(struct gameState *game, char *color){
 	return 1;
 }
 
+//move logic
+int checkEmpty(struct gameState *game, struct piece *piece){
+	if(game->prevStates[0].red.board[piece->y - '1'] & x){
+		return 0;
+	}
+	if(game->prevStates[0].redKings.board[piece->y - '1'] & x){
+		return 0;
+	}
+	if(game->prevStates[0].black.board[piece->y - '1'] & x){
+		return 0;
+	}
+	if(game->prevStates[0].blackKings.board[piece->y - '1'] & x){
+		return 0;
+	}
+	return 1;
+}
+
 int checkMove(struct gameState *game, struct piece *piece, struct piece *move){
 	if(!checkPiece(piece) || !checkPiece(move) || !checkColor(game, piece)){
 		return 0;
