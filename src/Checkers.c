@@ -155,6 +155,7 @@ int checkTurn(struct gameState *game, char *color){
 
 //move logic
 int checkEmpty(struct gameState *game, struct piece *piece){
+	char x = pieceXChar(piece);
 	if(game->prevStates[0].red.board[piece->y - '1'] & x){
 		return 0;
 	}
@@ -174,13 +175,140 @@ int checkMove(struct gameState *game, struct piece *piece, struct piece *move){
 	if(!checkPiece(piece) || !checkPiece(move) || !checkColor(game, piece)){
 		return 0;
 	}
+	char piece_type = checkPieceType(game, piece);
+	if(!checkEmpty(game, move)){ //makes sure move goes to empty space
+		return 0;
+	}
+	char move_direction = checkDirection(game, piece, move);
+	if(move_direction > DOWN_THRESHOLD & piece_type > KING_THRESHOLD){ //checks if not king and trying to move down
+		return 0;
+	}
+	`
+	if(check_if_jump(game, piece, move)){
+		//handle jump logic (jump_piece(game, piece, move, jumped);)
+	}
+	else{
+		move_piece(game, piece, move);
+	}
 	// Check piece possible moves
 	// 	if spaces in front is empty
 	// 		behind if king
 	// 	check for jumps
 	// 		king jumps too
-	
+	if(!checkKing(type)){
+		if(checkTrurn(game, COLOR1)){
+			if(move->y == '8'){
+				make_king(game, piece, piece_type);
+			}
+		}
+		else{
+			if(move->y == '1'){
+				make_king(game, piece, piece_type);
+		}
+	}
 	return 1;
+}
+
+void move_piece(struct gameState *game, struct piece *piece, struct piece *move, char piece_type){
+	remove_piece(game, piece, piece_type);
+	add_piece(game,move, piece_type);
+}
+
+void make_king(struct gameState *game, struct piece *piece, char piece_type){
+	remove_piece(game, piece, piece_type);
+	if(piece_type == RED){
+		add_piece(game, piece, REDKING);
+	}
+	else{
+		add_piece(game, piece, BLACKKING);
+	}
+}
+
+void remove_piece(struct gameState *game, struct piece *piece, char piece_type){
+	char piece_x = pieceXChar(piece);
+	char original = game->prevStates[0].black.board[piece->y - '1']; //need to use pointer to grid of the piece
+	if(piece_type == RED){
+		game->prevStates[0].red.board[piece->y - '1'] = game->prevStates[0].red.board[piece->y - '1'] ^ piece_x;
+	}
+	else if(piece_type = REDKING){
+		game->prevStates[0].redKings.board[piece->y - '1'] = game->prevStates[0].redKings.board[piece->y - '1'] ^ piece_x;
+	}
+	else if(piece_type == BLACK){
+		game->prevStates[0].black.board[piece->y - '1'] = game->prevStates[0].black.board[piece->y - '1'] ^ piece_x;
+	}
+	else if(piece_type == BLACKKING){
+		game->prevStates[0].blackKings.board[piece->y - '1'] = game->prevStates[0].blackKings.board[piece->y - '1'] ^ piece_x;
+	}
+}
+
+void add_piece(struct gameState *game, struct piece *piece, char piece_type){
+	char piece_x = pieceXChar(piece);
+	char original = game->prevStates[0].black.board[piece->y - '1']; //need to use pointer to grid of the piece
+	if(piece_type == RED){
+		game->prevStates[0].red.board[piece->y - '1'] = game->prevStates[0].red.board[piece->y - '1'] | piece_x;
+	}
+	else if(piece_type = REDKING){
+		game->prevStates[0].redKings.board[piece->y - '1'] = game->prevStates[0].redKings.board[piece->y - '1'] | piece_x;
+	}
+	else if(piece_type == BLACK){
+		game->prevStates[0].black.board[piece->y - '1'] = game->prevStates[0].black.board[piece->y - '1'] | piece_x;
+	}
+	else if(piece_type == BLACKKING){
+		game->prevStates[0].blackKings.board[piece->y - '1'] = game->prevStates[0].blackKings.board[piece->y - '1'] | piece_x;
+	}
+}
+
+int check_if_jump(struct gameState *game, struct piece *piece, struct piece *move){
+	int xdist = piece->x - move->x;
+	int ydist = piece->y - move->y;
+	if(ydist*ydist*xdist*xdist > 1){ //is 1 if direct move, >1 if jump
+		return 1;
+	}
+	return 0;
+}
+
+char checkDirection(struct gameState *game, struct piece *piece, struct piece *move){
+	if(piece->y < move->y){
+		if(piece->x < move->x){
+			return UP_RIGHT;
+		}
+		else{
+			return UP_LEFT;
+		}
+	}
+	else{
+		if(piece->x < move->x){
+			return DOWN_RIGHT;
+		}
+		else{
+			return DOWN_LEFT;
+		}
+	}
+}
+
+char checkPieceType(struct gameState *game, struct piece *piece){
+	char xChar = pieceXChar(piece);
+	for(int i = 0; i < 8; i++){
+		if(game->prevStates[0].black.board[piece->y - '1'] & xChar){
+			return BLACK;
+		}
+		if(game->prevStates[0].blackKings.board[piece->y - '1'] & xChar){
+			return BLACKKING;
+		}
+		if(game->prevStates[0].red.board[piece->y - '1'] & xChar){
+			return RED;
+		}
+		if(game->prevStates[0].redKings.board[piece->y - '1'] & xChar){
+			return REDKING;
+		}
+	}
+}
+
+int checkKing(char type){
+	if(!(type ^ REDKING & type ^ BLACKKING)){ //Compares Kings characters to type
+		return 1;
+	}
+	return 0;
 }
 
 int main(int argc, char** argv){ // test initialization
