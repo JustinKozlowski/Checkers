@@ -8,6 +8,12 @@
 #define CHECKER ' '
 #define COLOR1 "Red"
 #define COLOR2 "Black"
+#define KING_THRESHOLD 'a' // character to check if less than, then king
+#define UP_RIGHT 'R'
+#define DOWN_RIGHT 'r'
+#define UP_LEFT 'L'
+#define DOWN_LEFT 'l'
+#define DOWN_THRESHOLD 'a' //character to check if greater than, then moving down
 
 //-----GAME STRUCTURES-----//
 struct grid { //store states as binary in a single char
@@ -62,3 +68,32 @@ int checkColor(struct gameState *game, struct piece *piece);
 // checks of turn matches color turd
 int checkTurn(struct gameState *game, char *color); 
 
+//Checks if king or pawn
+char checkPieceType(struct gameState *game, struct piece *piece);
+
+//Checks direction piece will move
+char checkDirection(struct gameState *game, struct piece *piece, struct piece *move);
+
+//Adds piece to board of specified type
+void add_piece(struct gameState *game, struct piece *move, char piece_type);
+
+//Removes piece of given type from board
+void remove_piece(struct gameState *game, struct piece *piece, char piece_type);
+
+//Makes a given piece into a king
+void make_king(struct gameState *game, struct piece *piece, char piece_type);
+
+//Checks if pieceis a King
+int checkKing(char piece_type);
+
+//Moves a piecefrom one spot to another
+void move_piece(struct gameState *game, struct piece *piece, struct piece *move, char piece_type);
+
+//Jumps a piece (removes jumped and moves piece)
+void jump_piece(struct gameState *game, struct piece *piece, struct piece *move, char piece_type, struct piece *jumped, char jumped_type);
+
+//Checks if the move is a jump
+int check_if_jump(struct gameState *game, struct piece *piece, struct piece *move);
+
+//Checks if the jump is valid
+struct piece *check_valid_jump(struct gameState *game, struct piece *piece, struct piece *move, char move_dir);

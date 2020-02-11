@@ -183,20 +183,23 @@ int checkMove(struct gameState *game, struct piece *piece, struct piece *move){
 	if(move_direction > DOWN_THRESHOLD & piece_type > KING_THRESHOLD){ //checks if not king and trying to move down
 		return 0;
 	}
-	`
+	//checks if move is further than 1 spot away`
 	if(check_if_jump(game, piece, move)){
-		//handle jump logic (jump_piece(game, piece, move, jumped);)
+		//checks if it is legal jump
+		struct piece *jumped = check_valid_jump(game, piece, move, move_direction);
+		if(jumped != NULL){
+			//handle jump logic
+			char jumped_type = checkPieceType(game, jumped);
+			jump_piece(game, piece, move, piece_type, jumped, jumped_type);
+			free(jumped);
+		}
 	}
 	else{
-		move_piece(game, piece, move);
+		move_piece(game, piece, move, piece_type);
 	}
-	// Check piece possible moves
-	// 	if spaces in front is empty
-	// 		behind if king
-	// 	check for jumps
-	// 		king jumps too
-	if(!checkKing(type)){
-		if(checkTrurn(game, COLOR1)){
+	//check if piece moved to spot which promotes to king
+	if(!checkKing(piece_type)){
+		if(checkTurn(game, COLOR1)){
 			if(move->y == '8'){
 				make_king(game, piece, piece_type);
 			}
@@ -204,15 +207,84 @@ int checkMove(struct gameState *game, struct piece *piece, struct piece *move){
 		else{
 			if(move->y == '1'){
 				make_king(game, piece, piece_type);
+			}
 		}
 	}
 	return 1;
+}
+
+void jump_piece(struct gameState *game, struct piece *piece, struct piece *move, char piece_type, struct piece *jumped, char jumped_type){
+	remove_piece(game, piece, piece_type);
+	remove_piece(game, jumped, jumped_type);
+	add_piece(game, move, piece_type);
+
+}
+
+struct piece *check_valid_jump(struct gameState *game, struct piece *piece, struct piece *move, char move_dir){
+	struct piece *compare_piece = calloc(1, sizeof(struct piece));
+	if(move_dir == UP_RIGHT){
+		compare_piece->x = piece->x + 2;
+		compare_piece->y = piece->y + 2;
+	}
+	if(move_dir == DOWN_RIGHT){
+		compare_piece->x = piece->x + 2;
+		compare_piece->y = piece->y - 2;
+	}
+	if(move_dir == UP_LEFT){
+		compare_piece->x = piece->x - 2;
+		compare_piece->y = piece->y + 2;
+	}
+	if(move_dir == DOWN_LEFT){
+		compare_piece->x = piece->x - 2;
+		compare_piece->y = piece->y - 2;
+	}
+	//checks if moving piece is going to a valid spot after jumping
+	if(!((compare_piece->x == move->x) && (compare_piece->y == move->y))){
+		return NULL;
+	}
+	if(move_dir == UP_RIGHT){
+		compare_piece->x--;
+		compare_piece->y--;
+	}
+	if(move_dir == DOWN_RIGHT){
+		compare_piece->x--;
+		compare_piece->y++;
+	}
+	if(move_dir == UP_LEFT){
+		compare_piece->x++;
+		compare_piece->y--;
+	}
+	if(move_dir == DOWN_LEFT){
+		compare_piece->x++;
+		compare_piece->y++;
+	}
+	//check if jumped piece is other color
+	char comp_x = pieceXChar(compare_piece);
+	if(checkTurn(game, COLOR2)){
+		if(game->prevStates[0].red.board[compare_piece->y - '1'] & comp_x){
+			return compare_piece;
+		}
+		if(game->prevStates[0].redKings.board[compare_piece->y - '1'] & comp_x){
+			return compare_piece;
+		}
+	}
+	else{
+		
+		if(game->prevStates[0].black.board[compare_piece->y - '1'] & comp_x){
+			return compare_piece;
+		}
+		if(game->prevStates[0].blackKings.board[compare_piece->y - '1'] & comp_x){
+			return compare_piece;
+		}
+	}
+	return NULL;
 }
 
 void move_piece(struct gameState *game, struct piece *piece, struct piece *move, char piece_type){
 	remove_piece(game, piece, piece_type);
 	add_piece(game,move, piece_type);
 }
+
 
 void make_king(struct gameState *game, struct piece *piece, char piece_type){
 	remove_piece(game, piece, piece_type);
@@ -304,8 +376,8 @@ char checkPieceType(struct gameState *game, struct piece *piece){
 	}
 }
 
-int checkKing(char type){
-	if(!(type ^ REDKING & type ^ BLACKKING)){ //Compares Kings characters to type
+int checkKing(char piece_type){
+	if(!(piece_type ^ REDKING & piece_type ^ BLACKKING)){ //Compares Kings characters to type
 		return 1;
 	}
 	return 0;
@@ -313,7 +385,7 @@ int checkKing(char type){
 
 int main(int argc, char** argv){ // test initialization
 	struct gameState *game = gameInit();
-	printf("%s\n", game->prevStates[0].red.board);
 	printGame(game);
+	return 1;
 }
 
